@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>My WACK a Mole Game!</title>
+
+    <meta name="author" content="Tiago Silva">
+    <meta name="description" content="The site aims to provide a wack a mole game.">
+
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Amatic+SC:400,700' rel='stylesheet' type='text/css'>
+
+    <!-- Favicon are icons that are shown on the webpage tab and as the page is saved to favorites/bookmark. -->
+    <link rel="shortcut icon" href="devil.ico" type="image/x-icon">
+
+</head>
+
+<body>
+    <!-- The <span> tag is an inline container (for phrasing content, which does not inherently represent anything)
+         used to mark up a part of a text, or a part of a document. -->
+    //
+    <h1>Whack-a-mole! <span class="score">0</span></h1>
+
+    <div class="btn">
+        <button type="button" onclick="startGame()"> Start the Game!</button>
+        <button type="button" onclick="stopGame()"> Stop the Game!</button>
+    </div>
+
+    <div class="game">
+        <div class="hole hole1">
+            <div class="mole"></div>
+        </div>
+        <div class="hole hole2">
+            <div class="mole"></div>
+        </div>
+        <div class="hole hole3">
+            <div class="mole"></div>
+        </div>
+        <div class="hole hole4">
+            <div class="mole"></div>
+        </div>
+        <div class="hole hole5">
+            <div class="mole"></div>
+        </div>
+        <div class="hole hole6">
+            <div class="mole"></div>
+        </div>
+    </div>
+    <div id="myBang">BANG</div>
+    <div class="myBoing">BANG BANG</div>
+    <div class="myWhack">BANG BANG BANG</div>
+    <div class="whack">BOING</div>
+
+
+
+</body>
+
+<script>
+    const holes = document.querySelectorAll('.hole');
+    const scoreBoard = document.querySelector('.score');
+    const moles = document.querySelectorAll('.mole');
+    const whacky = document.querySelector('.whack');
+
+    const element = document.getElementById("myBang");
+    element.classList.add("hide");
+
+    const boing = document.querySelector('.myBoing');
+    boing.classList.add("show");
+
+    const myWhack = document.querySelector('.myWhack');
+
+
+    let lastHole;
+    let timeUp = false;
+    let score = 0;
+
+    let gameOver = false;
+
+    // Function to give us a random amount of time in ms between min and max hover. Time the mole is out of the hole
+    function randomTime(min, max) {
+        return Math.round(Math.random() * (max - min) + min);
+    }
+
+    // Function to pick a random hole for the mole to pop up. As a argument it takes the NODE LIST of holes defined on html. 
+    function randomHole(holes) {
+        //  console.log(holes);
+        // return Math.round(Math.random() * (holes.length - 1)); // return a random INT value between 0 and 5
+
+        const idx = Math.round(Math.random() * (holes.length - 1));
+        //   console.log("Holes NODE LIST index number is: " + idx);
+        const hole = holes[idx]; // this return a specific index of the NODE LIST
+
+        // If we want to make sure we never get the same idx twice in a row then use the IF statement
+
+        if (hole === lastHole) {
+
+            console.log("Nah! Nah!. Not the same hole again!")
+            return randomHole(holes);
+        }
+        lastHole = hole;
+        // console.log(hole);
+        return hole;
+    }
+
+    //Function to get the moles poping up
+    function peep() {
+        const time = randomTime(400, 1000);
+        const hole = randomHole(holes);
+
+        //  console.log("Random time: " + time, "  ; random hole is:", hole);
+        // add a class during runtime that is then styled in CSS. It hides the moles.
+        hole.classList.add('up');
+
+        // /Display an alert box after 3 seconds (3000 milliseconds):
+        /* setTimeout(() => {
+            alert("Hello");
+        }, 3000); */
+
+        setTimeout(function() {
+            hole.classList.remove('up');
+
+            if (!gameOver) {
+                //  console.log(gameOver);
+                peep(); // Keep running until the game is over.
+            }
+
+        }, time);
+
+    }
+
+    //Function to start the game
+    function startGame() {
+        score = 0;
+        scoreBoard.textContent = 0;
+        gameOver = false;
+        peep();
+
+        // Stops the game after 20 seconds
+        setTimeout(() => {
+            gameOver = true;
+            whacky.innerHTML = "Game Over";
+        }, 20000);
+    };
+
+    //Function to Stop/Pause the game in 100ms
+    function stopGame() {
+
+        alert("Game stopped");
+        gameOver = true;
+        console.log(gameOver);
+    };
+
+
+    function bonk(e) {
+        if (!e.isTrusted) return; // cheater!
+        score++;
+        this.parentNode.classList.remove('up');
+        scoreBoard.textContent = score;
+    }
+
+    function whackMole(e) {
+        if (!e.isTrusted) return; // Cheater. You faked the mouse click.
+        console.log("Mole whacked");
+        score++;
+        whacky.innerHTML = "BOING";
+        scoreBoard.textContent = score;
+        console.log(scoreBoard.textContent);
+
+        whacky.style.visibility = "visible";
+
+        element.classList.remove("hide");
+
+        boing.classList.remove("show");
+
+        myWhack.classList.add('up');
+
+        setTimeout(() => {
+            whacky.style.visibility = "hidden";
+            boing.classList.add("show");
+            myWhack.classList.remove('up');
+        }, 250);
+
+    };
+
+    // moles.forEach(mole => mole.addEventListener('click', bonk));
+
+    //Function to accumulates Mole Whacks. Add mouse click event for each of the moles and increment counter
+    moles.forEach(element => {
+        element.addEventListener('click', whackMole);
+    });
+</script>
+
+</html>
